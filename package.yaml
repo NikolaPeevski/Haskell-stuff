@@ -35,6 +35,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - haskell-test
+    - hmatrix
 
 tests:
   haskell-test-test:
