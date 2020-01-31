@@ -24,24 +24,24 @@ range from to count =
                  innerRange a b c (d-1) ++ [a + d * step]
 
 rd x [] = []
-rd x (a:b) = fromIntegral (floor (a * z)) / z : rd x b
+rd x (a:b) = fromIntegral (round (a * z)) / z : rd x b
     where z = 10^x
 
 absolute = map (\ a -> sqrt (fst a * fst a + snd a * snd a))
 
+sinSum [] _ _ _ = 0
 sinSum (a:b) k n 0 = a * sin((2 * pi * k * 0)/ n)
 sinSum (a:b) k n n' = a * sin((2 * pi * k * n')/ n) + sinSum b k n (n' - 1)  
 
+cosSum [] _ _ _ = 0
 cosSum (a:b) k n 0 = a * cos((2 * pi * k * 0)/ n)
 cosSum (a:b) k n n' = a * cos((2 * pi * k * n')/ n) + cosSum b k n (n' - 1)  
     
 
 dft x =
-    innerDft :: [Double] -> Int -> Int -> [(Double, Double)]
-    innerDft x (length x) - 1 (length x) - 1
+    innerDft x (fromIntegral (length x) * 1.0) (fromIntegral (length x) * 1.0)
     where
-        innerDft [] _ _ = []
-        innerDft (a:b) i l =
-            [(sinSum a i l l, cosSum a i l l)] ++ innerDft b (i-1) l
-
+        innerDft _ (-1) _ = []
+        innerDft x i l =
+            [(sinSum x i l l, cosSum x i l l)] ++ innerDft x (i-1) l
     
