@@ -39,7 +39,7 @@ cosSum (a:b) k n n' = a * cos((2 * pi * k * n')/ n) + cosSum b k n (n' - 1)
     
 
 dft x =
-    innerDft x (fromIntegral (length x) * 1.0) (fromIntegral (length x) * 1.0)
+    innerDft x (fromIntegral (length x)) (fromIntegral (length x))
     where
         innerDft _ (-1) _ = []
         innerDft x i l =
