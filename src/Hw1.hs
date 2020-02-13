@@ -24,9 +24,14 @@ range from to count =
                  innerRange a b c (d-1) ++ [a + d * step]
 
 -- Round implementation using pattern matching
-rd x [] = []
-rd x (a:b) = fromIntegral (round (a * z)) / z : rd x b
-    where z = 10^x
+-- rd x [] = []
+-- rd x (a:b) = fromIntegral (round (a * z)) / z : rd x b
+--     where z = 10^x
+
+rd _ [] = []
+rd n (a:b) = f a : rd n b
+  where f x = fromIntegral (round (c * x)) / c
+        c = 10 ^ n
 
 -- Absolute implementation using map
 absolute = map (\ a -> sqrt (fst a * fst a + snd a * snd a))
@@ -46,7 +51,7 @@ cosSum (a:b) k n n' = a * cos((2 * pi * k * n')/ n) + cosSum b k n (n' - 1)
 dft x =
     innerDft x (fromIntegral (length x)) (fromIntegral (length x))
     where
-        innerDft _ (-1) _ = []
+        innerDft _ 0 _ = []
         innerDft x i l =
             (sinSum x i l l, cosSum x i l l) : innerDft x (i-1) l
     
