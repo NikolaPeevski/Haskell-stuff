@@ -1,8 +1,9 @@
 module Main where
 
 import Hw1
-import Hw2
-import Hw3
+-- import Hw2
+-- import Hw3
+-- import Hw4
 import Data.Time.Clock
 -- import Numeric.LinearAlgebra
 
@@ -55,7 +56,7 @@ main = do
     -- print $ realV v1
     -- print $ pure' 'a'
 
-    -- let v1 = Vec [1,2,3]
+    -- let v1 = Vec [1.123,2.213,3.321]
     -- let v2 = Vec [2,3,4]
     -- let v3 = Vec [-10,0,10]
     -- print $ v1 + v2
@@ -88,4 +89,16 @@ main = do
     -- end2 <- getCurrentTime
     -- print (diffUTCTime end2 start2)
 
+    -- let v1 = Vec [1,2,3]
+    -- print $ v1 + v2
+    -- print $ rd 2 v1
     print "Potato"
+
+
+    let n = 2^8
+    let s1 = map (\x -> sin(20*pi*x) + sin(40*pi*x)/2) $ range 0 1 n
+    start <- getCurrentTime
+    let dft1 = fmap (/n) $ absolute $ dft s1
+    print(rd 2 dft1)
+    end <- getCurrentTime
+    print (diffUTCTime end start)
