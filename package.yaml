@@ -36,6 +36,7 @@ executables:
     dependencies:
     - haskell-test
     - hmatrix
+    - random
 
 tests:
   haskell-test-test:
