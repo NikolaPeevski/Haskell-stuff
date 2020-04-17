@@ -42,6 +42,7 @@ import Data.Complex
 
 
 import Text.Parsec
+import Text.Parsec.Expr
 import Text.Parsec.Prim (unexpected)
 import Data.Either
 import qualified Text.Parsec.Token as Token
@@ -129,7 +130,16 @@ let_ = keyword "let"
 in_ = keyword "in"
 end_ = keyword "end"
 val_ = keyword "val"
-assign = keyword "="
+assign_ = keyword "="
+gt_ = keyword ">"
+lt_ = keyword "<"
+eq_ = keyword "="
+pl_ = keyword "+"
+mn_ = keyword "-"
+tm_ = keyword "*"
+dv_ = keyword "/"
+fatArrow_ = keyword "=>"
+sCol_ = keyword ";"
 
 identifier :: Parser String                                -- identifier that won't collide with keywords
 identifier = try $ do 
@@ -154,19 +164,103 @@ funDecl = do
   fun_
   name <- identifier
   param <- identifier
-  -- t1 <- parseExpression
-  return (Fun name param parseExpression)
+  assign_
+  t1 <- parseExpression
+  return (Fun name param t1)
 
 valDecl :: Parser Decl
 valDecl = do
   val_
   name <- identifier
-  assign
-  -- t1 <- parseExpression
-  return (Val name parseExpression)
+  assign_
+  t1 <- parseExpression
+  return (Val name t1)
 
-parseExpression :: Exp
-parseExpression = (Const 4)
+parseExpression :: Parser Exp
+parseExpression = formula
+
+parseInt :: Parser Exp
+parseInt = Const `fmap` integer
+
+formula :: Parser Exp
+formula = buildExpressionParser [[add,sub]] juxta <?> "formula"
+  where add = Infix (pl_ >> return addExpr) AssocLeft
+        sub = Infix (mn_ >> return subExpr) AssocLeft
+        -- mulOp = Infix (tm_ >> return parseTm) AssocLeft
+
+juxta :: Parser Exp
+juxta = (foldl1 App) `fmap` (many1 atom)
+
+atom :: Parser Exp
+atom = parseVar <|> parseInt <|> parseExpression <?> "atom"
+
+addExpr :: Exp -> Exp -> Exp
+addExpr = Plus
+
+subExpr :: Exp -> Exp -> Exp
+subExpr = Minus
+
+
+parseIf :: Parser Exp
+parseIf = do
+  if_
+  cond <- parseExpression
+  then_
+  true <- parseExpression
+  else_
+  false <- parseExpression
+  return (If cond true false)
+
+parseCond :: Parser Exp
+parseCond = parseLt <|> parseGt
+
+parseLt :: Parser Exp
+parseLt = do
+  exp1 <- parseExpression
+  lt_
+  exp2 <- parseExpression
+  return (Lt exp1 exp2)
+
+parseGt :: Parser Exp
+parseGt = do
+  exp1 <- parseExpression
+  gt_
+  exp2 <- parseExpression
+  return (Gt exp1 exp2)
+
+parseEq :: Parser Exp
+parseEq = do
+  exp1 <- parseExpression
+  eq_
+  exp2 <- parseExpression
+  return (Eq exp1 exp2)
+
+parsePl :: Parser Exp
+parsePl = do
+  exp1 <- parseExpression
+  pl_
+  exp2 <- parseExpression
+  return (Plus (Const 5) (Const 6))
+
+parseMn :: Parser Exp
+parseMn = do
+  exp1 <- parseExpression
+  mn_
+  exp2 <- parseExpression
+  return (Plus exp1 exp2)
+
+parseApp :: Parser Exp
+parseApp = do
+  exp1 <- parseExpression
+  exp2 <- parseExpression
+  return (App exp1 exp2)
+
+parseVar :: Parser Exp
+parseVar = Var `fmap` identifier
+
+
+
+  
 
 
 a = "name"
@@ -188,10 +282,12 @@ main = do
         let it = "val it = let val y = 10 in fact y end"
         
         let d = (fact ++ it)
-        let test =  "val x = 5\n"
-        let test2 =  "fun fact x = 5"
-        let bla = (test ++ test2)  
-        run prog bla
+        let test =  "val x = x\n"
+        let test2 =  "fun fact x = 5\n"
+        let test3 = "if x > 1 then 1 else -1"
+        let test4 = "fun fact x = y"
+        let bla = (test ++ test2 ++ test3)  
+        run prog test
         -- run prog d
 
 
